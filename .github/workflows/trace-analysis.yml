@@ -22,7 +22,7 @@ jobs:
  
       - name: IA analisa traces
         env:
-          GROQCLOUD_API_KEY: ${{ secrets.GROQCLOUD_API_KEY }}
+          GROQCLOUD_API_KEY: ${{ secrets.GROQ_API_KEY }}
  
         run: |
  
