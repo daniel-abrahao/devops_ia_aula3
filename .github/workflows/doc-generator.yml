@@ -1,0 +1,135 @@
+name: IA analisando traces
+ 
+on:
+  workflow_dispatch:
+ 
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+ 
+jobs:
+ 
+  analisar-traces:
+ 
+    runs-on: ubuntu-latest
+ 
+    steps:
+ 
+      - uses: actions/checkout@v4
+ 
+      - name: Login GitHub CLI
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+ 
+      - name: IA analisa traces
+        env:
+          GROQCLOUD_API_KEY: ${{ secrets.GROQ_API_KEY }}
+ 
+        run: |
+ 
+          REPO_CONTEXT=$(python3 - <<'PY'
+          import subprocess
+          from pathlib import Path
+          
+          repo_root = subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip()
+          
+          file_list = subprocess.check_output(["git", "ls-files"], text=True).splitlines()
+          
+          patterns = [
+              "src_*/*",
+              "tests_*/*",
+              "metrics/*",
+              ".github/workflows/doc-generator.yml",
+              "README.md",
+          ]
+          content_files = []
+          try:
+              content_files = subprocess.check_output(["git", "ls-files", *patterns], text=True).splitlines()
+          except subprocess.CalledProcessError:
+              content_files = []
+          
+          max_lines = 200
+          lines = []
+          lines.append("### Arquivos no repositorio")
+          lines.extend(file_list)
+          lines.append("")
+          lines.append("### Conteudo dos arquivos principais")
+          for rel_path in content_files:
+              path = Path(repo_root) / rel_path
+              try:
+                  text = path.read_text(encoding="utf-8", errors="replace")
+              except Exception as exc:
+                  text = f"<<erro ao ler: {exc}>>"
+              text_lines = text.splitlines()
+              if len(text_lines) > max_lines:
+                  text = "\n".join(text_lines[:max_lines]) + "\n... (truncado)"
+              lines.append(f"#### {rel_path}")
+              lines.append(text)
+              lines.append("")
+          
+          print("\n".join(lines))
+          PY
+          )
+          export REPO_CONTEXT
+ 
+          PAYLOAD=$(python3 - <<'PY'
+          import json
+          import os
+          
+          context = os.environ.get("REPO_CONTEXT", "")
+          payload = {
+              "model": "llama-3.1-8b-instant",
+              "messages": [
+                  {
+                      "role": "system",
+                      "content": "Voce e um desenvolvedor especialista em analise e documentacao."
+                  },
+                  {
+                      "role": "user",
+                      "content": "Analise o repositorio e gere uma documentacao detalhada do sistema, incluindo arquitetura, componentes principais e fluxos de dados. Gere um README.md em Markdown com o conteudo." 
+                  },
+                  {
+                      "role": "user",
+                      "content": "Contexto do repositorio:\n" + context
+                  }
+              ]
+          }
+          print(json.dumps(payload, ensure_ascii=False))
+          PY
+          )
+ 
+          RESPONSE=$(curl -s https://api.groq.com/openai/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $GROQCLOUD_API_KEY" \
+            -d "$PAYLOAD")
+ 
+          echo "$RESPONSE"
+ 
+          DECISION=$(echo "$RESPONSE" | python3 -c "import sys,json; r=json.load(sys.stdin); print(r['choices'][0]['message']['content'])")
+ 
+          echo "$DECISION"
+
+          printf "%s\n" "$DECISION" > README.md
+
+      - name: Criar PR com documentacao
+        run: |
+          if git diff --quiet; then
+            echo "Sem alteracoes em README.md; PR nao criado."
+            exit 0
+          fi
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+
+          BRANCH="docs/readme-${GITHUB_RUN_ID}"
+          git checkout -b "$BRANCH"
+          git add README.md
+          git commit -m "Atualiza README via IA"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "Atualiza README via IA" \
+            --body "Gerado automaticamente pelo workflow de documentacao." \
+            --base "$GITHUB_REF_NAME" \
+            --head "$BRANCH"
