@@ -1,4 +1,4 @@
-name: IA analisando traces
+name: IA gera documentacao do sistema
  
 on:
   workflow_dispatch:
