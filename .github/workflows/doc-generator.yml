@@ -22,7 +22,7 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
  
-      - name: IA analisa traces
+      - name: IA gera documentacao do sistema
         env:
           GROQCLOUD_API_KEY: ${{ secrets.GROQ_API_KEY }}
  
