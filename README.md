@@ -67,8 +67,33 @@ gh workflow run .github/workflows/quality_gate_com_IA\ -\ groq\ -\ baixa.yml
   </tr>
 </table>
 
-- [ ] Pipeline de cobertura (alta/baixa)
-- [ ] Quality Gate com IA (OpenAI e GroqCloud)
+### Pipeline de cobertura (alta/baixa)
+<table>
+  <tr>
+    <td>
+      <img height="300" alt="Captura de tela de 2026-05-23 13-26-01" src="https://github.com/user-attachments/assets/f2389279-0053-4ab4-9cc4-7c1f5d4971f0" />
+      <br><em>Gate APROVADO</em>
+    </td>
+    <td>
+      <img height="300" alt="Captura de tela de 2026-05-23 13-26-17" src="https://github.com/user-attachments/assets/ad1fa9fe-4617-4ab7-b43c-cca8864a3dd1" />
+      <br><em>Gate BLOQUEADO</em>
+    </td>
+  </tr>
+</table>
+
+### Quality Gate com IA (OpenAI e GroqCloud)
+<table>
+  <tr>
+    <td>
+      <img height="300" alt="Captura de tela de 2026-05-23 13-38-23" src="https://github.com/user-attachments/assets/a29e89a2-8c3f-4755-b9a8-d35eb75a1549" />
+      <br><em>Gate APROVADO</em>
+    </td>
+    <td>
+      <img height="300" alt="Captura de tela de 2026-05-23 13-38-45" src="https://github.com/user-attachments/assets/7754f21e-a303-4726-a9c7-956e939e2570" />
+      <br><em>Gate BLOQUEADO</em>
+    </td>
+  </tr>
+</table>
 
 ### Pipeline geradora de documentação
 <table>
