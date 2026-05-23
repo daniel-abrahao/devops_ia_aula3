@@ -110,12 +110,12 @@ jobs:
  
           echo "$DECISION"
 
-          printf "%s\n" "$DECISION" > README.md
+          printf "%s\n" "$DECISION" > DOCS.md
 
       - name: Criar PR com documentacao
         run: |
-          if git status --porcelain -- README.md | grep -q '^$'; then
-            echo "Sem alteracoes em README.md; PR nao criado."
+          if git status --porcelain -- DOCS.md | grep -q '^$'; then
+            echo "Sem alteracoes em DOCS.md; PR nao criado."
             exit 0
           fi
 
@@ -124,12 +124,12 @@ jobs:
 
           BRANCH="docs/readme-${GITHUB_RUN_ID}"
           git checkout -b "$BRANCH"
-          git add README.md
-          git commit -m "Atualiza README via IA"
+          git add DOCS.md
+          git commit -m "Atualiza documentacao via IA"
           git push origin "$BRANCH"
 
           gh pr create \
-            --title "Atualiza README via IA" \
+            --title "Atualiza documentacao via IA" \
             --body "Gerado automaticamente pelo workflow de documentacao." \
             --base "$GITHUB_REF_NAME" \
             --head "$BRANCH"
