@@ -114,7 +114,7 @@ jobs:
 
       - name: Criar PR com documentacao
         run: |
-          if git diff --quiet; then
+          if git status --porcelain -- README.md | grep -q '^$'; then
             echo "Sem alteracoes em README.md; PR nao criado."
             exit 0
           fi
