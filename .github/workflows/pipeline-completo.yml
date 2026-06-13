@@ -64,7 +64,7 @@ jobs:
       - name: Canary Deploy Simulator
         id: canary
         if: steps.deploy-gate.outcome == 'success'
-        run: python deploy/canary_simulation.py --metrics-json metrics/system-reprovado-2.json
+        run: python deploy/canary_simulation.py --metrics-json metrics/system-aprovado.json
  
       # ==========================================================
       # ETAPA 4 - ROLLBACK
