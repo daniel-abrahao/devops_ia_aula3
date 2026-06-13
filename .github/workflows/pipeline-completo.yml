@@ -41,7 +41,7 @@ jobs:
  
       - name: Testes + Quality Gate
         run: |
-          pytest tests_alta/ \
+          python -m pytest tests_alta/ \
             --cov=src_alta \
             --cov-report=json:coverage.json \
             --cov-fail-under=80 \
@@ -64,7 +64,7 @@ jobs:
       - name: Canary Deploy Simulator
         id: canary
         if: steps.deploy-gate.outcome == 'success'
-        run: python deploy/canary_simulator.py
+        run: python deploy/canary_simulation.py
  
       # ==========================================================
       # ETAPA 4 - ROLLBACK
